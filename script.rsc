@@ -5,6 +5,14 @@
   :global unifiServer "controller.lagossoftware.com.br"
   :global ipServer
   :global ipToHex
+  :global ipToHexOld
+  :global configUnifi do={
+    /ip dhcp-server option
+      add name=unifi code=43 value=$hex
+
+    /ip dhcp-server network
+      set dhcp-option=unifi [find]
+  }
 
   :set ipServer [:put [:resolve $unifiServer];]; 
 
@@ -25,7 +33,6 @@
     :set total2 [:toarray $total2];
     :for i from=0 to=3 step=1 do={
       :set j $i;
-      #:if ($j<5) do={if ($j=0) do={:set j 4;} else={:set j ($j-1);};};
       :set decimal [:pick $total2 $j ($j+1)]
       :set division ($decimal / 16);
       :set result ($result . [:pick $hextable $division]);
@@ -35,17 +42,15 @@
   }else={:put ("Ip do Servidor Desconhecido");}
 
   :local unifi [:len [/ip dhcp-server option find where name=unifi]];
-  :set ipToHexOld [:put ([:pick [/ip dhcp-server option print as-value ]]->"value")];
 
-  :if ($ipToHex != $ipToHexOld) do={
-    :if (unifi="1" ) do={
-      /ip dhcp-server option remove unifi 
-    }
+  :if (unifi="1") do={
+    :set ipToHexOld [:put ([:pick [/ip dhcp-server option print as-value ]]->"value")];
+  } else={
+    :put [$configUnifi hex=$ipToHex]
+  }
 
-    /ip dhcp-server option
-    add name=unifi code=43 value=$ipToHex
-
-    /ip dhcp-server network
-    set dhcp-option=unifi [find ]
+  :if ($ipToHex != $ipToHexOld && unifi="1") do={
+    /ip dhcp-server option remove unifi
+    :put [$configUnifi hex=$ipToHex]
   }
 }
