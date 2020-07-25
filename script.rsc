@@ -2,7 +2,7 @@
 ### Encontra servidor UniFi
 
 
-  :global unifiServer "controller.lagossoftware.com.br"
+  :global unifiServer "controller.exmplo.com"
   :global ipServer
   :global ipToHex
   :global ipToHexOld
